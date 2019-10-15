@@ -10,13 +10,11 @@ void SSlepton::initializeAnalyzer(){
   //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/SSlepton.h
   MuonIDs = {    
     "POGLoose",                            //DataFormat/src/Muon.C
-    "POGMedium", 
     "POGTight",
   };
   //==== corresponding Muon ID SF Keys for mcCorr->MuonID_SF()
   MuonIDSFKeys = {      
     "",                     //SKFlatAnalyzer/data/Run2Legacy_v3/2016/ID/histmap.txt
-    "NUM_MediumID_DEN_genTracks",
     "NUM_TightID_DEN_genTracks",
   };
 
@@ -235,33 +233,33 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   //==========================
   if(IsDATA){
     if(muons.at(0).Charge()*muons.at(1).Charge()>0){
-      JSFillHist(param.Name, "Mll_SS_DATA", Mass.M(), weight, 2990, 10., 3000.);
-      JSFillHist(param.Name, "Pt_pre_SS_DATA", muons.at(0).Pt(), weight, 2990, 10., 3000.); 
-      JSFillHist(param.Name, "Pt_sec_SS_DATA", muons.at(1).Pt(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Mll_SS_DATA", Mass.M(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Pt_pre_SS_DATA", muons.at(0).Pt(), weight, 2990, 10., 3000.); 
+      FillHist(param.Name+"/Pt_sec_SS_DATA", muons.at(1).Pt(), weight, 2990, 10., 3000.);
 
       if(muons.at(0).Charge() > 0) { 
-        JSFillHist(param.Name, "Mll_pp_DATA", Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_pp_DATA", Mass.M(), weight, 2990, 10., 3000.);
       }
      
       else {
-        JSFillHist(param.Name, "Mll_mm_DATA", Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_mm_DATA", Mass.M(), weight, 2990, 10., 3000.);
       }
     }
   }
   
   else {  
     if(muons.at(0).Charge() * muons.at(1).Charge() < 0) {
-      JSFillHist(param.Name, "Mll_OS_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Mll_OS_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
     }
     else {
-      JSFillHist(param.Name, "Mll_SS_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Mll_SS_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
       
       if(muons.at(0).Charge() > 0) { 
-        JSFillHist(param.Name, "Mll_pp_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_pp_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
       }
       
       else {
-        JSFillHist(param.Name, "Mll_mm_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_mm_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
       }
     }
   }
