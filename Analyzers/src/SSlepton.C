@@ -265,5 +265,5 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   }
 }
 
-//Addtional code => muon pt distribution(leading and sub-leading both), non isolated subleading muon, # of jets 
+//Addtional code => non isolated subleading muon, # of jets 
 
