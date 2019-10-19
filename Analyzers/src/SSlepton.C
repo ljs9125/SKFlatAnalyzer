@@ -29,8 +29,8 @@ void SSlepton::initializeAnalyzer(){
     TriggerSafePtCut = 26.;
   }
   else if(DataYear==2017){
-    IsoMuTriggerName = "HLT_IsoMu24_v";
-    TriggerSafePtCut = 26.;
+    IsoMuTriggerName = "HLT_IsoMu27_v";
+    TriggerSafePtCut = 29.;
   }
 
   else if(DataYear==2018){
