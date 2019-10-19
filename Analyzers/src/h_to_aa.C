@@ -1,10 +1,10 @@
-#include "ExampleRun.h"
+#include "h_to_aa.h"
 
-ExampleRun::ExampleRun(){
+h_to_aa::h_to_aa(){
 
 }
 
-void ExampleRun::initializeAnalyzer(){
+void h_to_aa::initializeAnalyzer(){
 
   //================================================================
   //====  Example 1
@@ -13,10 +13,10 @@ void ExampleRun::initializeAnalyzer(){
 
   //==== if you use "--userflags RunSyst" with SKFlat.py, HasFlag("RunSyst") will return "true"
   RunSyst = HasFlag("RunSyst");
-  cout << "[ExampleRun::initializeAnalyzer] RunSyst = " << RunSyst << endl;
+  cout << "[h_to_aa::initializeAnalyzer] RunSyst = " << RunSyst << endl;
 
   //==== Dimuon Z-peak with two muon IDs
-  //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/ExampleRun.h
+  //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/h_to_aa.h
   MuonIDs = {
     "POGMedium",
     "POGTight"
@@ -30,7 +30,7 @@ void ExampleRun::initializeAnalyzer(){
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here
   //==== (Example) Year-dependent variables
-  //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/ExampleRun.h 
+  //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/h_to_aa.h 
   //==== IsoMuTriggerName is a year-dependent variable, and you don't want to do "if(Dataer==~~)" for every event (let's save cpu time).
   //==== Then, do it here, which only ran once for each macro
   if(DataYear==2016){
@@ -42,8 +42,8 @@ void ExampleRun::initializeAnalyzer(){
     TriggerSafePtCut = 29.;
   }
 
-  cout << "[ExampleRun::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
-  cout << "[ExampleRun::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
+  cout << "[h_to_aa::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
+  cout << "[h_to_aa::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
   //==== Test btagging code
   //==== add taggers and WP that you want to use in analysis
@@ -63,7 +63,7 @@ void ExampleRun::initializeAnalyzer(){
   //================================
 
   RunNewPDF = HasFlag("RunNewPDF");
-  cout << "[ExampleRun::initializeAnalyzer] RunNewPDF = " << RunNewPDF << endl;
+  cout << "[h_to_aa::initializeAnalyzer] RunNewPDF = " << RunNewPDF << endl;
   if(RunNewPDF && !IsDATA){
 
     LHAPDFHandler LHAPDFHandler_Prod;
@@ -92,17 +92,17 @@ void ExampleRun::initializeAnalyzer(){
   //================================================
 
   RunXSecSyst = HasFlag("RunXSecSyst");
-  cout << "[ExampleRun::initializeAnalyzer] RunXSecSyst = " << RunXSecSyst << endl;
+  cout << "[h_to_aa::initializeAnalyzer] RunXSecSyst = " << RunXSecSyst << endl;
 
 }
 
-ExampleRun::~ExampleRun(){
+h_to_aa::~h_to_aa(){
 
   //==== Destructor of this Analyzer
 
 }
 
-void ExampleRun::executeEvent(){
+void h_to_aa::executeEvent(){
 
   //================================================================
   //====  Example 1
@@ -114,7 +114,7 @@ void ExampleRun::executeEvent(){
   //==== and then check ID booleans.
   //==== GetAllMuons not only loops over all MINIAOD muons, but also actually CONSTRUCT muon objects for each muons.
   //==== We are now running systematics, and you don't want to do this for every systematic sources
-  //==== So, I defined "vector<Muon> AllMuons;" in Analyzers/include/ExampleRun.h,
+  //==== So, I defined "vector<Muon> AllMuons;" in Analyzers/include/h_to_aa.h,
   //==== and save muons objects at the very beginning of executeEvent().
   //==== Later, do "SelectMuons(AllMuons, ID, pt, eta)" to get muons with ID cuts
   AllMuons = GetAllMuons();
@@ -125,7 +125,7 @@ void ExampleRun::executeEvent(){
   //==== If data, 1.;
   //==== If MC && DataYear > 2017, 1.;
   //==== If MC && DataYear <= 2017, we have to reweight the event with this value
-  //==== I defined "double weight_Prefire;" in Analyzers/include/ExampleRun.h
+  //==== I defined "double weight_Prefire;" in Analyzers/include/h_to_aa.h
   weight_Prefire = GetPrefireWeight(0);
 
   //==== Declare AnalyzerParameter
@@ -186,11 +186,11 @@ void ExampleRun::executeEvent(){
   //================================
 
   if(RunNewPDF && !IsDATA){
-    //cout << "[ExampleRun::executeEvent] PDF reweight = " << GetPDFReweight() << endl;
+    //cout << "[h_to_aa::executeEvent] PDF reweight = " << GetPDFReweight() << endl;
     FillHist("NewPDF_PDFReweight", GetPDFReweight(), 1., 2000, 0.90, 1.10);
-    //cout << "[ExampleRun::executeEvent] PDF reweight for error set (NErrorSet = "<<pdfReweight->NErrorSet<< ") :" << endl;
+    //cout << "[h_to_aa::executeEvent] PDF reweight for error set (NErrorSet = "<<pdfReweight->NErrorSet<< ") :" << endl;
     for(int i=0; i<pdfReweight->NErrorSet; i++){
-      //cout << "[ExampleRun::executeEvent]   " << GetPDFReweight(i) << endl;
+      //cout << "[h_to_aa::executeEvent]   " << GetPDFReweight(i) << endl;
       JSFillHist("NewPDF_PDFErrorSet", "PDFReweight_Member_"+TString::Itoa(i,10), GetPDFReweight(i), 1., 2000, 0.90, 1.10);
     }
   }
@@ -233,7 +233,7 @@ void ExampleRun::executeEvent(){
 
 }
 
-void ExampleRun::executeEventFromParameter(AnalyzerParameter param){
+void h_to_aa::executeEventFromParameter(AnalyzerParameter param){
 
   //=============
   //==== No Cut
@@ -308,7 +308,7 @@ void ExampleRun::executeEventFromParameter(AnalyzerParameter param){
     //this_AllElectrons = ScaleElectrons( this_AllElectrons, -1 );
   }
   else{
-    cout << "[ExampleRun::executeEventFromParameter] Wrong syst" << endl;
+    cout << "[h_to_aa::executeEventFromParameter] Wrong syst" << endl;
     exit(EXIT_FAILURE);
   }
 

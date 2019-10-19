@@ -12,4 +12,9 @@
 #pragma link C++ class SKFlatValidation+;
 #pragma link C++ class SkimTree_LRSMHighPt+;
 
+#pragma link C++ class SSlepton+;
+#pragma link C++ class h_to_aa+;
+
+
+
 #endif
