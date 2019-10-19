@@ -111,12 +111,6 @@ void SSlepton::executeEvent(){
     param.Name = MuonID+"_"+"Central";
 
     //==== You can define lepton ID string here
-
-    //==== You can define lepton ID string here
-
-    //==== You can define lepton ID string here
-
-    //==== You can define lepton ID string here
     param.Muon_Tight_ID = MuonID;
     param.Muon_ID_SF_Key = MuonIDSFKey;
 
