@@ -1,13 +1,13 @@
-#include "SSlepton.h"
+#include "NonIsoSec.h"
 
-SSlepton::SSlepton(){
+NonIsoSec::NonIsoSec(){
 
 }
 
-void SSlepton::initializeAnalyzer(){
+void NonIsoSec::initializeAnalyzer(){
 
 
-  //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/SSlepton.h
+  //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/NonIsoSec.h
   MuonIDs = {    
     "POGLoose",                            //DataFormat/src/Muon.C
     "POGTight",
@@ -21,7 +21,7 @@ void SSlepton::initializeAnalyzer(){
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
   //==== You can define sample-dependent or year-dependent variables here
   //==== (Example) Year-dependent variables
-  //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/SSlepton.h 
+  //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/NonIsoSec.h 
   //==== IsoMuTriggerName is a year-dependent variable, and you don't want to do "if(Dataer==~~)" for every event (let's save cpu time).
   //==== Then, do it here, which only ran once for each macro
   if(DataYear==2016){
@@ -38,8 +38,8 @@ void SSlepton::initializeAnalyzer(){
     TriggerSafePtCut = 26.;
   }
 
-  cout << "[SSlepton::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
-  cout << "[SSlepton::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
+  cout << "[NonIsoSec::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
+  cout << "[NonIsoSec::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
   //==== Test btagging code
   //==== add taggers and WP that you want to use in analysis
@@ -54,13 +54,13 @@ void SSlepton::initializeAnalyzer(){
 
 }
 
-SSlepton::~SSlepton(){
+NonIsoSec::~NonIsoSec(){
 
   //==== Destructor of this Analyzer
 
 }
 
-void SSlepton::executeEvent(){
+void NonIsoSec::executeEvent(){
 
   //================================================================
   //====  Example 1
@@ -72,7 +72,7 @@ void SSlepton::executeEvent(){
   //==== and then check ID booleans.
   //==== GetAllMuons not only loops over all MINIAOD muons, but also actually CONSTRUCT muon objects for each muons.
   //==== We are now running systematics, and you don't want to do this for every systematic sources
-  //==== So, I defined "vector<Muon> AllMuons;" in Analyzers/include/SSlepton.h,
+  //==== So, I defined "vector<Muon> AllMuons;" in Analyzers/include/NonIsoSec.h,
   //==== and save muons objects at the very beginning of executeEvent().
   //==== Later, do "SelectMuons(AllMuons, ID, pt, eta)" to get muons with ID cuts
   AllMuons = GetAllMuons();
@@ -83,7 +83,7 @@ void SSlepton::executeEvent(){
   //==== If data, 1.;
   //==== If MC && DataYear > 2017, 1.;
   //==== If MC && DataYear <= 2017, we have to reweight the event with this value
-  //==== I defined "double weight_Prefire;" in Analyzers/include/SSlepton.h
+  //==== I defined "double weight_Prefire;" in Analyzers/include/NonIsoSec.h
   weight_Prefire = GetPrefireWeight(0);
 
   //==== Declare AnalyzerParameter
@@ -124,7 +124,7 @@ void SSlepton::executeEvent(){
 
 }
 
-void SSlepton::executeEventFromParameter(AnalyzerParameter param){
+void NonIsoSec::executeEventFromParameter(AnalyzerParameter param){
 
   //========================
   //==== MET Filter
@@ -238,6 +238,20 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
       else {
         FillHist(param.Name+"/Mll_mm_DATA", Mass.M(), weight, 3000, 0., 3000.);
       }
+    }
+    //Second Lepton RelIso>0.3 cut
+    if(muons.at(1).RelIso()>0.3){
+      if(muons.at(0).Charge()*muons.at(1).Charge()>0){
+        FillHist(param.Name+"NonIso/Mll_SS_DATA", Mass.M(), weight, 3000, 0., 3000.);
+
+        if(muons.at(0).Charge() > 0) { 
+          FillHist(param.Name+"NonIso/Mll_pp_DATA", Mass.M(), weight, 3000, 0., 3000.);
+        }
+     
+        else {
+          FillHist(param.Name+"NonIso/Mll_mm_DATA", Mass.M(), weight, 3000, 0., 3000.);
+        }
+      }  
     }
   }
   

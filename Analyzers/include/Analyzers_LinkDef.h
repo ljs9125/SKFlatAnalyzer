@@ -13,6 +13,6 @@
 #pragma link C++ class SkimTree_LRSMHighPt+;
 
 #pragma link C++ class SSlepton+;
-
+#pragma link C++ class NonIsoSec+;
 
 #endif
