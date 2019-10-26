@@ -227,33 +227,47 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   //==========================
   if(IsDATA){
     if(muons.at(0).Charge()*muons.at(1).Charge()>0){
-      FillHist(param.Name+"/Mll_SS_DATA", Mass.M(), weight, 2990, 10., 3000.);
-      FillHist(param.Name+"/Pt_pre_SS_DATA", muons.at(0).Pt(), weight, 2990, 10., 3000.); 
-      FillHist(param.Name+"/Pt_sec_SS_DATA", muons.at(1).Pt(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Mll_SS_DATA", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist(param.Name+"/Pt_pre_SS_DATA", muons.at(0).Pt(), weight, 3000, 0., 3000.); 
+      FillHist(param.Name+"/Pt_sec_SS_DATA", muons.at(1).Pt(), weight, 3000, 0., 3000.);
 
       if(muons.at(0).Charge() > 0) { 
-        FillHist(param.Name+"/Mll_pp_DATA", Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_pp_DATA", Mass.M(), weight, 3000, 0., 3000.);
       }
      
       else {
-        FillHist(param.Name+"/Mll_mm_DATA", Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_mm_DATA", Mass.M(), weight, 3000, 0., 3000.);
       }
+    }
+    //Second Lepton RelIso>0.3 cut
+    if(muons.at(1).RelIso()>0.3){
+      if(muons.at(0).Charge()*muons.at(1).Charge()>0){
+        FillHist(param.Name+"NonIso/Mll_SS_DATA", Mass.M(), weight, 3000, 0., 3000.);
+
+        if(muons.at(0).Charge() > 0) { 
+          FillHist(param.Name+"NonIso/Mll_pp_DATA", Mass.M(), weight, 3000, 0., 3000.);
+        }
+     
+        else {
+          FillHist(param.Name+"NonIso/Mll_mm_DATA", Mass.M(), weight, 3000, 0., 3000.);
+        }
+      }  
     }
   }
   
   else {  
     if(muons.at(0).Charge() * muons.at(1).Charge() < 0) {
-      FillHist(param.Name+"/Mll_OS_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Mll_OS_"+MCSample, Mass.M(), weight, 3000, 0., 3000.);
     }
     else {
-      FillHist(param.Name+"/Mll_SS_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+      FillHist(param.Name+"/Mll_SS_"+MCSample, Mass.M(), weight, 3000, 0., 3000.);
       
       if(muons.at(0).Charge() > 0) { 
-        FillHist(param.Name+"/Mll_pp_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_pp_"+MCSample, Mass.M(), weight, 3000, 0., 3000.);
       }
       
       else {
-        FillHist(param.Name+"/Mll_mm_"+MCSample, Mass.M(), weight, 2990, 10., 3000.);
+        FillHist(param.Name+"/Mll_mm_"+MCSample, Mass.M(), weight, 3000, 0., 3000.);
       }
     }
   }

@@ -16,11 +16,11 @@ void SSlepton_2016() {
   TCanvas *c5 = new TCanvas("c5","c5");
   TCanvas *c6 = new TCanvas("c6","c6");
 
-  TH1F *h1 = (TH1F*)DATA->Get("POGLoose_Central/Mll_pp_DATA");
-  TH1F *h2 = (TH1F*)DATA->Get("POGLoose_Central/Mll_mm_DATA");
+  TH1F *h1 = (TH1F*)DATA->Get("POGMedium_Central/++_DATA_POGMedium_Central");
+  TH1F *h2 = (TH1F*)DATA->Get("POGMedium_Central/--_DATA_POGMedium_Central");
 
-  TH1F *h4 = (TH1F*)DATA->Get("POGTight_Central/Mll_pp_DATA");
-  TH1F *h5 = (TH1F*)DATA->Get("POGTight_Central/Mll_mm_DATA");
+  TH1F *h4 = (TH1F*)DATA->Get("POGTight_Central/++_DATA_POGTight_Central");
+  TH1F *h5 = (TH1F*)DATA->Get("POGTight_Central/--_DATA_POGTight_Central");
 
   //draw data 
   
@@ -50,7 +50,7 @@ void SSlepton_2016() {
 
   //Becareful if you REBIN, you have to clone after Rebin
   TH1F *h3 = (TH1F*)h1-> Clone ("Ratio PP/MM"); 
-  TH1F *h6 = (TH1F*)h4-> Clone ("Ratio PP/MM"); 
+  TH1F *h6 = (TH1F*)h1-> Clone ("Ratio PP/MM"); 
 
 
   c3->cd();
@@ -111,11 +111,11 @@ void SSlepton_2016() {
 //  l->Draw();
   
   //Save as pdf file
-  c1->SaveAs("./output/2016/Loose/pp_dimuon_DATA.pdf");
-  c2->SaveAs("./output/2016/Loose/mm_dimuon_DATA.pdf");
-  c3->SaveAs("./output/2016/Loose/ratio_dimuon_DATA.pdf");
-  c4->SaveAs("./output/2016/Tight/pp_dimuon_DATA.pdf");
-  c5->SaveAs("./output/2016/Tight/mm_dimuon_DATA.pdf");
-  c6->SaveAs("./output/2016/Tight/ratio_dimuon_DATA.pdf");
+  c1->SaveAs("./output/2016/medium/pp_dimuon_DATA.pdf");
+  c2->SaveAs("./output/2016/medium/mm_dimuon_DATA.pdf");
+  c3->SaveAs("./output/2016/medium/ratio_dimuon_DATA.pdf");
+  c4->SaveAs("./output/2016/tight/pp_dimuon_DATA.pdf");
+  c5->SaveAs("./output/2016/tight/mm_dimuon_DATA.pdf");
+  c6->SaveAs("./output/2016/tight/ratio_dimuon_DATA.pdf");
  
 }

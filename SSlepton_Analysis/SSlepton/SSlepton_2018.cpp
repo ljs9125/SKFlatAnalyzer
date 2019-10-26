@@ -50,7 +50,7 @@ void SSlepton_2018() {
 
   //Becareful if you REBIN, you have to clone after Rebin
   TH1F *h3 = (TH1F*)h1-> Clone ("Ratio PP/MM"); 
-  TH1F *h6 = (TH1F*)h1-> Clone ("Ratio PP/MM"); 
+  TH1F *h6 = (TH1F*)h4-> Clone ("Ratio PP/MM"); 
 
 
   c3->cd();
