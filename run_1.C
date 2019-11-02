@@ -9,7 +9,7 @@ R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/lhapdf/6.2.1-fmblm
 
 void run_1(){
 
-  SSlepton m;
+  NonIsoSec m;
 
   m.SetTreeName("recoTree/SKFlat");
 
