@@ -182,10 +182,11 @@ void NonIsoSec::executeEventFromParameter(AnalyzerParameter param){
 
   //==== leading muon has trigger-safe pt
   if(muons.at(0).Pt() <= TriggerSafePtCut ) return;
+  
+  if(muons.at(0).Charge()*muons.at(1).Charge()<0) return;
 
   Particle Mass  = muons.at(0) + muons.at(1);
 
-  //==== require second lepton be non-isolated
     
   //===================
   //==== Event weight
@@ -226,35 +227,96 @@ void NonIsoSec::executeEventFromParameter(AnalyzerParameter param){
   //==== Now fill histograms
   //==========================
   if(IsDATA){
-    if(muons.at(0).Charge()*muons.at(1).Charge()>0){
-      FillHist(param.Name+"/Mll_SS_DATA", Mass.M(), weight, 3000, 0., 3000.);
-      FillHist(param.Name+"/Pt_pre_SS_DATA", muons.at(0).Pt(), weight, 3000, 0., 3000.); 
-      FillHist(param.Name+"/Pt_sec_SS_DATA", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+    //No restrictions on Jet Number
+    FillHist("SS/"+param.Name+"/mll", Mass.M(), weight, 3000, 0., 3000.);
+    FillHist("SS/"+param.Name+"/prelep/Pt", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+    FillHist("SS/"+param.Name+"/prelep/Eta", muons.at(0).Eta(), weight, 100, -10., 10.);
+    FillHist("SS/"+param.Name+"/prelep/Phi", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+    FillHist("SS/"+param.Name+"/seclep/Pt", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+    FillHist("SS/"+param.Name+"/seclep/Eta", muons.at(1).Eta(), weight, 100, -10., 10.);
+    FillHist("SS/"+param.Name+"/seclep/Phi", muons.at(1).Phi(), weight, 100, -3.5, 3.5);
 
-      if(muons.at(0).Charge() > 0) { 
-        FillHist(param.Name+"/Mll_pp_DATA", Mass.M(), weight, 3000, 0., 3000.);
-      }
-     
-      else {
-        FillHist(param.Name+"/Mll_mm_DATA", Mass.M(), weight, 3000, 0., 3000.);
-      }
+    if(muons.at(0).Charge()>0){
+      FillHist("PP/"+param.Name+"/mll", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist("PP/"+param.Name+"/prelep/Pt", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+      FillHist("PP/"+param.Name+"/prelep/Eta", muons.at(0).Eta(), weight, 100, -10., 10.);
+      FillHist("PP/"+param.Name+"/prelep/Phi", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+      FillHist("PP/"+param.Name+"/seclep/Pt", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+      FillHist("PP/"+param.Name+"/seclep/Eta", muons.at(1).Eta(), weight, 100, -10., 10.);
+      FillHist("PP/"+param.Name+"/seclep/Phi", muons.at(1).Phi(), weight, 100, -3.5, 3.5); 
+    }	
+    else{
+      FillHist("MM/"+param.Name+"/mll", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist("MM/"+param.Name+"/prelep/Pt", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+      FillHist("MM/"+param.Name+"/prelep/Eta", muons.at(0).Eta(), weight, 100, -10., 10.);
+      FillHist("MM/"+param.Name+"/prelep/Phi", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+      FillHist("MM/"+param.Name+"/seclep/Pt", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+      FillHist("MM/"+param.Name+"/seclep/Eta", muons.at(1).Eta(), weight, 100, -10., 10.);
+      FillHist("MM/"+param.Name+"/seclep/Phi", muons.at(1).Phi(), weight, 100, -3.5, 3.5); 
     }
-    //Second Lepton RelIso>0.3 cut
-    if(muons.at(1).RelIso()>0.3){
-      if(muons.at(0).Charge()*muons.at(1).Charge()>0){
-        FillHist("NonIso/"+param.Name+"/Mll_SS_DATA", Mass.M(), weight, 3000, 0., 3000.);
 
-        if(muons.at(0).Charge() > 0) { 
-          FillHist("NonIso/"+param.Name+"/Mll_pp_DATA", Mass.M(), weight, 3000, 0., 3000.);
+    //Draw hist depending on # of Jets
+    for(unsigned int i=0; i<5; i++){
+      if(jets.size() == i){
+        FillHist("SS/NonIso/"+param.Name+"/mll_"+TString::Itoa(i,10)+"Jets", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist("SS/NonIso/"+param.Name+"/prelep/Pt"+TString::Itoa(i,10)+"Jets", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+        FillHist("SS/NonIso/"+param.Name+"/prelep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(0).Eta(), weight, 100, -10., 10.);
+        FillHist("SS/NonIso/"+param.Name+"/prelep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+        FillHist("SS/NonIso/"+param.Name+"/seclep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+        FillHist("SS/NonIso/"+param.Name+"/seclep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(1).Eta(), weight, 100, -10., 10.);
+        FillHist("SS/NonIso/"+param.Name+"/seclep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(1).Phi(), weight, 100, -3.5, 3.5);
+
+        if(muons.at(0).Charge()>0){
+          FillHist("PP/NonIso/"+param.Name+"/mll_"+TString::Itoa(i,10)+"Jets", Mass.M(), weight, 3000, 0., 3000.);
+          FillHist("PP/NonIso/"+param.Name+"/prelep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+          FillHist("PP/NonIso/"+param.Name+"/prelep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(0).Eta(), weight, 100, -10., 10.);
+          FillHist("PP/NonIso/"+param.Name+"/prelep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+          FillHist("PP/NonIso/"+param.Name+"/seclep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+          FillHist("PP/NonIso/"+param.Name+"/seclep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(1).Eta(), weight, 100, -10., 10.);
+          FillHist("PP/NonIso/"+param.Name+"/seclep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(1).Phi(), weight, 100, -3.5, 3.5); 
+        }	
+        else{
+          FillHist("MM/NonIso/"+param.Name+"/mll_"+TString::Itoa(i,10)+"Jets", Mass.M(), weight, 3000, 0., 3000.);
+          FillHist("MM/NonIso/"+param.Name+"/prelep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+          FillHist("MM/NonIso/"+param.Name+"/prelep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(0).Eta(), weight, 100, -10., 10.);
+          FillHist("MM/NonIso/"+param.Name+"/prelep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+          FillHist("MM/NonIso/"+param.Name+"/seclep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+          FillHist("MM/NonIso/"+param.Name+"/seclep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(1).Eta(), weight, 100, -10., 10.);
+          FillHist("MM/NonIso/"+param.Name+"/seclep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(1).Phi(), weight, 100, -3.5, 3.5); 
         }
-     
-        else {
-          FillHist("NonIso"+param.Name+"/Mll_mm_DATA", Mass.M(), weight, 3000, 0., 3000.);
+        if(muons.at(1).RelIso()>0.3){
+          FillHist("SS/NonIso/"+param.Name+"/mll_"+TString::Itoa(i,10)+"Jets", Mass.M(), weight, 3000, 0., 3000.);
+          FillHist("SS/NonIso/"+param.Name+"/prelep/Pt"+TString::Itoa(i,10)+"Jets", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+          FillHist("SS/NonIso/"+param.Name+"/prelep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(0).Eta(), weight, 100, -10., 10.);
+          FillHist("SS/NonIso/"+param.Name+"/prelep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+          FillHist("SS/NonIso/"+param.Name+"/seclep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+          FillHist("SS/NonIso/"+param.Name+"/seclep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(1).Eta(), weight, 100, -10., 10.);
+          FillHist("SS/NonIso/"+param.Name+"/seclep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(1).Phi(), weight, 100, -3.5, 3.5);
+
+          if(muons.at(0).Charge()>0){
+            FillHist("PP/NonIso/"+param.Name+"/mll_"+TString::Itoa(i,10)+"Jets", Mass.M(), weight, 3000, 0., 3000.);
+            FillHist("PP/NonIso/"+param.Name+"/prelep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+            FillHist("PP/NonIso/"+param.Name+"/prelep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(0).Eta(), weight, 100, -10., 10.);
+            FillHist("PP/NonIso/"+param.Name+"/prelep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+            FillHist("PP/NonIso/"+param.Name+"/seclep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+            FillHist("PP/NonIso/"+param.Name+"/seclep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(1).Eta(), weight, 100, -10., 10.);
+            FillHist("PP/NonIso/"+param.Name+"/seclep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(1).Phi(), weight, 100, -3.5, 3.5); 
+          }	
+          else{
+            FillHist("MM/NonIso/"+param.Name+"/mll_"+TString::Itoa(i,10)+"Jets", Mass.M(), weight, 3000, 0., 3000.);
+            FillHist("MM/NonIso/"+param.Name+"/prelep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(0).Pt(), weight, 3000, 0., 3000.);
+            FillHist("MM/NonIso/"+param.Name+"/prelep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(0).Eta(), weight, 100, -10., 10.);
+            FillHist("MM/NonIso/"+param.Name+"/prelep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(0).Phi(), weight, 100, -3.5, 3.5);
+            FillHist("MM/NonIso/"+param.Name+"/seclep/Pt_"+TString::Itoa(i,10)+"Jets", muons.at(1).Pt(), weight, 3000, 0., 3000.);
+            FillHist("MM/NonIso/"+param.Name+"/seclep/Eta_"+TString::Itoa(i,10)+"Jets", muons.at(1).Eta(), weight, 100, -10., 10.);
+            FillHist("MM/NonIso/"+param.Name+"/seclep/Phi_"+TString::Itoa(i,10)+"Jets", muons.at(1).Phi(), weight, 100, -3.5, 3.5); 
+          }
         }
-      }  
+      }
     }
   }
-  
+
+  //for MC Sample
   else {  
     if(muons.at(0).Charge() * muons.at(1).Charge() < 0) {
       FillHist(param.Name+"/Mll_OS_"+MCSample, Mass.M(), weight, 3000, 0., 3000.);
@@ -273,5 +335,5 @@ void NonIsoSec::executeEventFromParameter(AnalyzerParameter param){
   }
 }
 
-//Addtional code => non isolated subleading muon, # of jets 
+
 
