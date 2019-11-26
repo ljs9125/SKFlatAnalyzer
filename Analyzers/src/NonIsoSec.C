@@ -24,6 +24,7 @@ void NonIsoSec::initializeAnalyzer(){
   //==== I defined "TString IsoMuTriggerName;" and "double TriggerSafePtCut;" in Analyzers/include/NonIsoSec.h 
   //==== IsoMuTriggerName is a year-dependent variable, and you don't want to do "if(Dataer==~~)" for every event (let's save cpu time).
   //==== Then, do it here, which only ran once for each macro
+
   if(DataYear==2016){
     IsoMuTriggerName = "HLT_IsoMu24_v";        //SKFlatAnalyzer/script/PDandTrigger
     TriggerSafePtCut = 26.;
