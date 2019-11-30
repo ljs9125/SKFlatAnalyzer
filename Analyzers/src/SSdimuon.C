@@ -136,12 +136,12 @@ void SSdimuon::executeEventFromParameter(AnalyzerParameter param){
   Event ev = GetEvent();
   Particle METv = ev.GetMETVector();
 
+  double MET = METv.Pt();
+
   //==============
   //==== Trigger
   //==============
   if(! (ev.PassTrigger(IsoMuTriggerName) )) return;
-
-
 
   //======================
   //==== Copy AllObjects
@@ -186,11 +186,7 @@ void SSdimuon::executeEventFromParameter(AnalyzerParameter param){
   
   if(muons.at(0).Charge()*muons.at(1).Charge()<0) return;
 
-  Particle Mass  = muons.at(0) + muons.at(1);
-
-  //==== one isolated, the other reverse isolated
-    
-  if((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15)) return;
+  Particle Dimu  = muons.at(0) + muons.at(1);
 
   //===================
   //==== Event weight
@@ -231,40 +227,156 @@ void SSdimuon::executeEventFromParameter(AnalyzerParameter param){
   //==== Now fill histograms
   //==========================
   if(IsDATA){
+    //mu+mu+
     if(muons.at(0).Charge()>0){
-      FillHist("DATA/"+param.Name+"/Mll_pp", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist("DATA/"+param.Name+"/Mll_pp", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>1)
-        FillHist("DATA/"+param.Name+"/Mll_pp_1jet", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist("DATA/"+param.Name+"/Mll_pp_1j", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>2)
-        FillHist("DATA/"+param.Name+"/Mll_pp_2jets", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist("DATA/"+param.Name+"/Mll_pp_2j", Dimu.M(), weight, 3000, 0., 3000.);
+      if(MET > 40.){
+        FillHist("DATA/"+param.Name+"/Mll_pp_MET40", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>1)
+          FillHist("DATA/"+param.Name+"/Mll_pp_MET40_1j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>2)
+          FillHist("DATA/"+param.Name+"/Mll_pp_MET40_2j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(n_bjet_deepcsv_m > 0){
+          FillHist("DATA/"+param.Name+"/Mll_pp_MET40_1b", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>1)
+            FillHist("DATA/"+param.Name+"/Mll_pp_MET40_1j1b", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>2)
+            FillHist("DATA/"+param.Name+"/Mll_pp_MET40_2j1b", Dimu.M(), weight, 3000, 0., 3000.);
+        }
+      }
+ 
+      if(muons.at(0).RelIso() < 0.15 || muons.at(1).RelIso() < 0.15){
+        FillHist("DATA/"+param.Name+"/Mll_pp_Iso", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>1)
+          FillHist("DATA/"+param.Name+"/Mll_pp_Iso_1j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>2)
+          FillHist("DATA/"+param.Name+"/Mll_pp_Iso_2j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(MET > 40.){
+          FillHist("DATA/"+param.Name+"/Mll_pp_Iso_MET40", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>1)
+            FillHist("DATA/"+param.Name+"/Mll_pp_Iso_MET40_1j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>2)
+            FillHist("DATA/"+param.Name+"/Mll_pp_Iso_MET40_2j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(n_bjet_deepcsv_m > 0){
+            FillHist("DATA/"+param.Name+"/Mll_pp_Iso_MET40_1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>1)
+              FillHist("DATA/"+param.Name+"/Mll_pp_Iso_MET40_1j1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>2)
+              FillHist("DATA/"+param.Name+"/Mll_pp_Iso_MET40_2j1b", Dimu.M(), weight, 3000, 0., 3000.);
+          }
+        }
+      }
+      if((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15)){
+        FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso", Dimu.M(), weight, 3000, 0., 3000.); 
+        if(jets.size()>1)
+          FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_1j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>2)   
+          FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_2j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(MET > 40.){
+          FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_MET40", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>1)
+            FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_MET40_1j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>2)
+            FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_MET40_2j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(n_bjet_deepcsv_m > 0){
+            FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_MET40_1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>1)
+              FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_MET40_1j1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>2)
+              FillHist("DATA/"+param.Name+"/Mll_pp_Iso_NonIso_MET40_2j1b", Dimu.M(), weight, 3000, 0., 3000.);
+          }
+        }
+      }
     }
+    //mu-mu-
     else{
-      FillHist("DATA/"+param.Name+"/Mll_mm", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist("DATA/"+param.Name+"/Mll_mm", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>1)
-        FillHist("DATA/"+param.Name+"/Mll_mm_1jet", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist("DATA/"+param.Name+"/Mll_mm_1j", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>2)
-        FillHist("DATA/"+param.Name+"/Mll_mm_2jets", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist("DATA/"+param.Name+"/Mll_mm_2j", Dimu.M(), weight, 3000, 0., 3000.);
+      if(MET > 40.){
+        FillHist("DATA/"+param.Name+"/Mll_mm_MET40", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>1)
+          FillHist("DATA/"+param.Name+"/Mll_mm_MET40_1j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>2)
+          FillHist("DATA/"+param.Name+"/Mll_mm_MET40_2j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(n_bjet_deepcsv_m > 0){
+          FillHist("DATA/"+param.Name+"/Mll_mm_MET40_1b", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>1)
+            FillHist("DATA/"+param.Name+"/Mll_mm_MET40_1j1b", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>2)
+            FillHist("DATA/"+param.Name+"/Mll_mm_MET40_2j1b", Dimu.M(), weight, 3000, 0., 3000.);
+        }
+      }
+ 
+      if(muons.at(0).RelIso() < 0.15 || muons.at(1).RelIso() < 0.15){
+        FillHist("DATA/"+param.Name+"/Mll_mm_Iso", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>1)
+          FillHist("DATA/"+param.Name+"/Mll_mm_Iso_1j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>2)
+          FillHist("DATA/"+param.Name+"/Mll_mm_Iso_2j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(MET > 40.){
+          FillHist("DATA/"+param.Name+"/Mll_mm_Iso_MET40", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>1)
+            FillHist("DATA/"+param.Name+"/Mll_mm_Iso_MET40_1j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>2)
+            FillHist("DATA/"+param.Name+"/Mll_mm_Iso_MET40_2j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(n_bjet_deepcsv_m > 0){
+            FillHist("DATA/"+param.Name+"/Mll_mm_Iso_MET40_1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>1)
+              FillHist("DATA/"+param.Name+"/Mll_mm_Iso_MET40_1j1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>2)
+              FillHist("DATA/"+param.Name+"/Mll_mm_Iso_MET40_2j1b", Dimu.M(), weight, 3000, 0., 3000.);
+          }
+        }
+      }
+      if((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15)){
+        FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso", Dimu.M(), weight, 3000, 0., 3000.); 
+        if(jets.size()>1)
+          FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_1j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(jets.size()>2)   
+          FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_2j", Dimu.M(), weight, 3000, 0., 3000.);
+        if(MET > 40.){
+          FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_MET40", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>1)
+            FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_MET40_1j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(jets.size()>2)
+            FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_MET40_2j", Dimu.M(), weight, 3000, 0., 3000.);
+          if(n_bjet_deepcsv_m > 0){
+            FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_MET40_1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>1)
+              FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_MET40_1j1b", Dimu.M(), weight, 3000, 0., 3000.);
+            if(jets.size()>2)
+              FillHist("DATA/"+param.Name+"/Mll_mm_Iso_NonIso_MET40_2j1b", Dimu.M(), weight, 3000, 0., 3000.);
+          }
+        }
+      }
     }
   }
 
   //for MC Sample
   else {
     if(muons.at(0).Charge()>0){
-      FillHist(MCSample+"/"+param.Name+"/Mll_pp", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist(MCSample+"/"+param.Name+"/Mll_pp", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>1)
-        FillHist(MCSample+"/"+param.Name+"/Mll_pp_1jet", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist(MCSample+"/"+param.Name+"/Mll_pp_1j", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>2)
-        FillHist(MCSample+"/"+param.Name+"/Mll_pp_2jets", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist(MCSample+"/"+param.Name+"/Mll_pp_2j", Dimu.M(), weight, 3000, 0., 3000.);
     }
     else{
-      FillHist(MCSample+"/"+param.Name+"/Mll_mm", Mass.M(), weight, 3000, 0., 3000.);
+      FillHist(MCSample+"/"+param.Name+"/Mll_mm", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>1)
-        FillHist(MCSample+"/"+param.Name+"/Mll_mm_1jet", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist(MCSample+"/"+param.Name+"/Mll_mm_1j", Dimu.M(), weight, 3000, 0., 3000.);
       if(jets.size()>2)
-        FillHist(MCSample+"/"+param.Name+"/Mll_mm_2jets", Mass.M(), weight, 3000, 0., 3000.);
+        FillHist(MCSample+"/"+param.Name+"/Mll_mm_2j", Dimu.M(), weight, 3000, 0., 3000.);
     }
   }
 }
 
-
+//MET> 40 Gev, At least 1 b-tagged jet, Divide search region into endcap and barrel
 
