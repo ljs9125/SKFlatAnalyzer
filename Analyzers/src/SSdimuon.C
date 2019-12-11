@@ -183,7 +183,8 @@ void SSdimuon::executeEventFromParameter(AnalyzerParameter param){
 
   //==== leading muon has trigger-safe pt
   if(muons.at(0).Pt() <= TriggerSafePtCut ) return;
-  
+ 
+  //==== same sign dimuon 
   if(muons.at(0).Charge()*muons.at(1).Charge()<0) return;
 
   Particle Dimu  = muons.at(0) + muons.at(1);
