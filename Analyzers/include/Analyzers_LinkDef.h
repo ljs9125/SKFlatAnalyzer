@@ -13,8 +13,6 @@
 #pragma link C++ class SkimTree_LRSMHighPt+;
 #pragma link C++ class JetTagging+;
 
-#pragma link C++ class SSlepton+;
-
 
 
 #endif
