@@ -12,15 +12,14 @@ public:
   void executeEventFromParameter(AnalyzerParameter param);
   void executeEvent();
 
-  bool RunSyst;
-  bool RunNewPDF;
-  bool RunXSecSyst;
+  bool RunNI;
 
   TString IsoMuTriggerName;
   double TriggerSafePtCut;
 
   vector<TString> MuonIDs, MuonIDSFKeys;
   vector<Muon> AllMuons;
+  vector<Electron> AllElectrons;
   vector<Jet> AllJets;
 
   double weight_Prefire;
@@ -28,6 +27,8 @@ public:
   SSlepton();
   ~SSlepton();
 
+  void Charge_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets);
+  void Charge_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets);
 };
 
 

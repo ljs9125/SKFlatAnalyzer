@@ -14,6 +14,5 @@
 
 #pragma link C++ class SSlepton+;
 #pragma link C++ class NonIsoSec+;
-#pragma link C++ class SSdimuon+;
 
 #endif
