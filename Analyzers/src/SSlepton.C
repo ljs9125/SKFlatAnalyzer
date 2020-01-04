@@ -11,12 +11,16 @@ void SSlepton::initializeAnalyzer(){
   //==== I defined "vector<TString> MuonIDs;" in Analyzers/include/SSlepton.h
   MuonIDs = {    
     "POGLoose",                            //DataFormat/src/Muon.C
+    "POGMedium",
     "POGTight",
+    "POGHighPt",
   };
   //==== corresponding Muon ID SF Keys for mcCorr->MuonID_SF()
   MuonIDSFKeys = {      
     "",                     //SKFlatAnalyzer/data/Run2Legacy_v3/2016/ID/histmap.txt
+    "NUM_MediumID_DEN_genTracks",
     "NUM_TightID_DEN_genTracks",
+    "NUM_HighPtID_DEN_genTracks",
   };
 
   //==== At this point, sample informations (e.g., IsDATA, DataStream, MCSample, or DataYear) are all set
@@ -216,10 +220,10 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
     //==== Example of applying Muon scale factors
     for(unsigned int i=0; i<muons.size(); i++){
 
-      double this_idsf  = mcCorr->MuonID_SF (param.Muon_ID_SF_Key,  muons.at(i).Eta(), muons.at(i).MiniAODPt());
+      double this_idsf  = mcCorr->MuonID_SF (param.Muon_ID_SF_Key,  muons.at(i).Eta(), weight, muons.at(i).MiniAODPt());
 
       //==== If you have iso SF, do below. Here we don't.
-      //double this_isosf = mcCorr->MuonISO_SF(param.Muon_ISO_SF_Key, muons.at(i).Eta(), muons.at(i).MiniAODPt());
+      //double this_isosf = mcCorr->MuonISO_SF(param.Muon_ISO_SF_Key, muons.at(i).Eta(), weight, muons.at(i).MiniAODPt());
       double this_isosf = 1.;
 
       weight *= this_idsf*this_isosf;
@@ -229,6 +233,7 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   
   Charge_Plus(ev, param, weight, muons, eles, jets);
   Charge_Minus(ev, param, weight, muons, eles, jets);
+  //Ratio(ev, param, weight, muons, eles, jets);
 
 }
 
@@ -239,9 +244,9 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
 
   Particle ll  = muons.at(0) + muons.at(1);
 
-  double Mu_1st_pt, Mu_2nd_pt;
-  Mu_1st_pt = muons.at(0).Pt();
-  Mu_2nd_pt = muons.at(1).Pt();
+  double mu0_pt, mu1_pt;
+  mu0_pt = muons.at(0).Pt();
+  mu1_pt = muons.at(1).Pt();
 
   int Nbjet=0;
 
@@ -251,36 +256,47 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
   
   if (muons.at(0).Charge() <  0)  return;
 
-  FillHist(param.Name+"/plus/dimu_invmass", ll.M(), weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/plus/mu_1st_pt", Mu_1st_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/plus/mu_2nd_pt", Mu_2nd_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mll_plus", ll.M(), weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mu0_pt_plus", mu0_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mu1_pt_plus", mu1_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mu0_eta_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
+  FillHist(param.Name+"_mu1_eta_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
 
   if (MET < 40.) return;
 
-  FillHist(param.Name+"/plus/Njet", jets.size(), weight, 10, 0., 10.);
-  FillHist(param.Name+"/plus/Nbjet", Nbjet, weight, 10, 0.,10.);
+  FillHist(param.Name+"_Njet_plus", jets.size(), weight, 10, 0., 10.);
+  FillHist(param.Name+"_Nbjet_plus", Nbjet, weight, 10, 0.,10.);
    
-  FillHist(param.Name+"/plus/dimu_invmass_MET40", ll.M(), weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/plus/mu_1st_pt_MET40", Mu_1st_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/plus/mu_2nd_pt_MET40", Mu_2nd_pt, weight, 3000, 0., 3000.);
-
+  FillHist(param.Name+"_mll_MET40_plus", ll.M(), weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mu0_pt_MET40_plus", mu0_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mu1_pt_MET40_plus", mu1_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mu0_eta_MET40_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
+  FillHist(param.Name+"_mu1_eta_MET40_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
+ 
   if (Nbjet == 0){
-    FillHist(param.Name+"/plus/dimu_invmass_Nobjet", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/plus/mu_1st_pt_Nobjet", Mu_1st_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/plus/mu_2nd_pt_Nobjet", Mu_2nd_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mll_b_veto_plus", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu0_pt_b_veto_plus", mu0_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu1_pt_b_veto_plus", mu1_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu0_eta_b_veto_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
+    FillHist(param.Name+"_mu1_eta_b_veto_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
-  else{
-    FillHist(param.Name+"/plus/Njet_1b", jets.size(), weight, 10, 0., 10.);   
 
-    FillHist(param.Name+"/plus/dimu_invmass_1b", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/plus/mu_1st_pt_1b", Mu_1st_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/plus/mu_2nd_pt_1b", Mu_2nd_pt, weight, 3000, 0., 3000.);
+  else{
+    FillHist(param.Name+"_Njet_1b_plus", jets.size(), weight, 10, 0., 10.);   
+
+    FillHist(param.Name+"_mll_1b_plus", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu0_pt_1b_plus", mu0_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu1_pt_1b_plus", mu1_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu0_eta_1b_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
+    FillHist(param.Name+"_mu1_eta_1b_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
 
     if(jets.size() == 0) return;
 
-    FillHist(param.Name+"/plus/dimu_invmass_1b1j", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/plus/mu_1st_pt_1b1j", Mu_1st_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/plus/mu_2nd_pt_1b1j", Mu_2nd_pt, weight, 3000, 0., 3000.); 
+    FillHist(param.Name+"_mll_1b1j_plus", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu0_pt_1b1j_plus", mu0_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mu1_pt_1b1j_plus", mu1_pt, weight, 3000, 0., 3000.); 
+    FillHist(param.Name+"_mu0_eta_1b1j_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
+    FillHist(param.Name+"_mu1_eta_1b1j_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
 }
 
@@ -291,9 +307,9 @@ void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  s
 
   Particle ll  = muons.at(0) + muons.at(1);
 
-  double Mu_1st_pt, Mu_2nd_pt;
-  Mu_1st_pt = muons.at(0).Pt();
-  Mu_2nd_pt = muons.at(1).Pt();
+  double mu0_pt, mu1_pt;
+  mu0_pt = muons.at(0).Pt();
+  mu1_pt = muons.at(1).Pt();
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < jets.size(); ij++){
@@ -302,37 +318,84 @@ void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  s
 
   if (muons.at(0).Charge() > 0) return;
 
-  FillHist(param.Name+"/minus/dimu_invmass", ll.M(), weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/minus/mu_1st_pt", Mu_1st_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/minus/mu_2nd_pt", Mu_2nd_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mll_minus", ll.M(), weight, 30000, 0., 3000.);
+  FillHist(param.Name+"_mu0_pt_minus", mu0_pt, weight, 30000, 0., 3000.);
+  FillHist(param.Name+"_mu1_pt_minus", mu1_pt, weight, 30000, 0., 3000.);
+  FillHist(param.Name+"_mu0_eta_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
+  FillHist(param.Name+"_mu1_eta_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
 
   if (MET < 40.) return;
 
-  FillHist(param.Name+"/minus/Njet", jets.size(), weight, 10, 0., 10.);
-  FillHist(param.Name+"/minus/Nbjet", Nbjet, weight, 10, 0., 10.);  
+  FillHist(param.Name+"_Njet_minus", jets.size(), weight, 10, 0., 10.);
+  FillHist(param.Name+"_Nbjet_minus", Nbjet, weight, 10, 0., 10.);  
 
-  FillHist(param.Name+"/minus/dimu_invmass_MET40", ll.M(), weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/minus/mu_1st_pt_MET40", Mu_1st_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"/minus/mu_2nd_pt_MET40", Mu_2nd_pt, weight, 3000, 0., 3000.);
+  FillHist(param.Name+"_mll_MET40_minus", ll.M(), weight, 30000, 0., 3000.);
+  FillHist(param.Name+"_mu0_pt_MET40_minus", mu0_pt, weight, 30000, 0., 3000.);
+  FillHist(param.Name+"_mu1_pt_MET40_minus", mu1_pt, weight, 30000, 0., 3000.);
+  FillHist(param.Name+"_mu0_eta_MET40_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
+  FillHist(param.Name+"_mu1_eta_MET40_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
 
   if (Nbjet == 0){
-    FillHist(param.Name+"/minus/dimu_invmass_Nobjet", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/minus/mu_1st_pt_Nobjet", Mu_1st_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/minus/mu_2nd_pt_Nobjet", Mu_2nd_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mll_b_veto_minus", ll.M(), weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu0_pt_b_veto_minus", mu0_pt, weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu1_pt_b_veto_minus", mu1_pt, weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu0_eta_b_veto_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
+    FillHist(param.Name+"_mu1_eta_b_veto_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
   else{
-    FillHist(param.Name+"/minus/Njet", jets.size(), weight, 10, 0., 10.);
+    FillHist(param.Name+"_Njet_1b_minus", jets.size(), weight, 10, 0., 10.);
 
-    FillHist(param.Name+"/minus/dimu_invmass_1b", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/minus/mu_1st_pt_1b", Mu_1st_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/minus/mu_2nd_pt_1b", Mu_2nd_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mll_1b_minus", ll.M(), weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu0_pt_1b_minus", mu0_pt, weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu1_pt_1b_minus", mu1_pt, weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu0_eta_1b_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
+    FillHist(param.Name+"_mu1_eta_1b_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
 
     if(jets.size() == 0) return;
-    FillHist(param.Name+"/minus/dimu_invmass_1b1j", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/minus/mu_1st_pt_1b1j", Mu_1st_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"/minus/mu_2nd_pt_1b1j", Mu_2nd_pt, weight, 3000, 0., 3000.);
+    FillHist(param.Name+"_mll_1b1j_minus", ll.M(), weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu0_pt_1b1j_minus", mu0_pt, weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu1_pt_1b1j_minus", mu1_pt, weight, 30000, 0., 3000.);
+    FillHist(param.Name+"_mu0_eta_1b1j_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
+    FillHist(param.Name+"_mu1_eta_1b1j_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
 }
+
+/*
+void SSlepton::Ratio(Event ev, AnalyzerParameter param, double weight,std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets){
+
+  Particle METv = ev.GetMETVector();
+  double MET = METv.Pt();
+
+  Particle ll  = muons.at(0) + muons.at(1);
+
+  double mu0_pt, mu1_pt;
+  mu0_pt = muons.at(0).Pt();
+  mu1_pt = muons.at(1).Pt();
+
+  int Nbjet=0;
+
+  for(unsigned int ij = 0 ; ij < jets.size(); ij++){
+    if(IsBTagged(jets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
+  }
+
+  FillHist(param.Name+"_mll_ratio", ll.M(), weight, 30000, 0., 3000.);
+
+  if (MET < 40.) return;
+
+  FillHist(param.Name+"_mll_MET40_ratio", ll.M(), weight, 30000, 0., 3000.);
+
+  if (Nbjet == 0){
+    FillHist(param.Name+"_mll_b_veto_ratio", ll.M(), weight, 30000, 0., 3000.);
+  }
+  else{
+    FillHist(param.Name+"_mll_1b_raio", ll.M(), weight, 30000, 0., 3000.);
+
+    if(jets.size() == 0) return;
+
+    FillHist(param.Name+"_mll_1b1j_ratio", ll.M(), weight, 30000, 0., 3000.);
+  }
+}
+*/
 
 
 
