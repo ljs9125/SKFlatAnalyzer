@@ -161,7 +161,9 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
 
   vector<Muon> muons = SelectMuons(this_AllMuons, param.Muon_Tight_ID, 20., 2.4);
   vector<Electron> eles = SelectElectrons(this_AllElectrons, param.Electron_Veto_ID, 35., 2.5);
-  vector<Jet> jets = SelectJets(this_AllJets, param.Jet_ID, 30., 2.4);
+
+  vector<Jet> alljets = SelectJets(this_AllJets, param.Jet_ID, 30., 2.4);
+  vector<Jet> jets = JetsVetoLeptonInside(alljets, eles, muon);
 
   //=======================
   //==== Sort in pt-order
@@ -170,8 +172,8 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   //==== 1) leptons : after scaling/smearing, pt ordring can differ from MINIAOD
   std::sort(muons.begin(), muons.end(), PtComparing);
   std::sort(eles.begin(), eles.end(), PtComparing);
-  //==== 2) jets : similar, but also when applying new JEC, ordering is changes. This is important if you use leading jets
-  std::sort(jets.begin(), jets.end(), PtComparing);
+  //==== 2) alljets : similar, but also when applying new JEC, ordering is changes. This is important if you use leading jets
+  std::sort(alljets.begin(), jets.end(), PtComparing);
 
  
   //=========================
@@ -231,13 +233,13 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
     }
   }  
   
-  Charge_Plus(ev, param, weight, muons, eles, jets);
-  Charge_Minus(ev, param, weight, muons, eles, jets);
-  //Ratio(ev, param, weight, muons, eles, jets);
+  Charge_Plus(ev, param, weight, muons, eles, alljets);
+  Charge_Minus(ev, param, weight, muons, eles, alljets);
+  //Ratio(ev, param, weight, muons, eles, alljets);
 
 }
 
-void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets){
+void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
   Particle METv = ev.GetMETVector();
   double MET = METv.Pt();
@@ -250,8 +252,8 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
 
   int Nbjet=0;
 
-  for(unsigned int ij = 0 ; ij < jets.size(); ij++){
-    if(IsBTagged(jets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
+  for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
+    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
   }
   
   if (muons.at(0).Charge() <  0)  return;
@@ -263,6 +265,8 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
   FillHist(param.Name+"_mu1_eta_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
 
   if (MET < 40.) return;
+
+  //Reconstruct W boson using transverse mass(2 regions:mll less than 40GeV, larger than 40GeV)
 
   FillHist(param.Name+"_Njet_plus", jets.size(), weight, 10, 0., 10.);
   FillHist(param.Name+"_Nbjet_plus", Nbjet, weight, 10, 0.,10.);
@@ -282,25 +286,17 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
   }
 
   else{
-    FillHist(param.Name+"_Njet_1b_plus", jets.size(), weight, 10, 0., 10.);   
+    FillHist(param.Name+"_Njet_1b_plus", alljets.size(), weight, 10, 0., 10.);   
 
     FillHist(param.Name+"_mll_1b_plus", ll.M(), weight, 3000, 0., 3000.);
     FillHist(param.Name+"_mu0_pt_1b_plus", mu0_pt, weight, 3000, 0., 3000.);
     FillHist(param.Name+"_mu1_pt_1b_plus", mu1_pt, weight, 3000, 0., 3000.);
     FillHist(param.Name+"_mu0_eta_1b_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
     FillHist(param.Name+"_mu1_eta_1b_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
-
-    if(jets.size() == 0) return;
-
-    FillHist(param.Name+"_mll_1b1j_plus", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu0_pt_1b1j_plus", mu0_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu1_pt_1b1j_plus", mu1_pt, weight, 3000, 0., 3000.); 
-    FillHist(param.Name+"_mu0_eta_1b1j_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
-    FillHist(param.Name+"_mu1_eta_1b1j_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
 }
 
-void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets){
+void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
   Particle METv = ev.GetMETVector();
   double MET = METv.Pt();
@@ -312,8 +308,8 @@ void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  s
   mu1_pt = muons.at(1).Pt();
 
   int Nbjet=0;
-  for(unsigned int ij = 0 ; ij < jets.size(); ij++){
-    if(IsBTagged(jets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
+  for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
+    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
   }
 
   if (muons.at(0).Charge() > 0) return;
@@ -343,25 +339,18 @@ void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  s
     FillHist(param.Name+"_mu1_eta_b_veto_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
   else{
-    FillHist(param.Name+"_Njet_1b_minus", jets.size(), weight, 10, 0., 10.);
+    FillHist(param.Name+"_Njet_1b_minus", alljets.size(), weight, 10, 0., 10.);
 
     FillHist(param.Name+"_mll_1b_minus", ll.M(), weight, 30000, 0., 3000.);
     FillHist(param.Name+"_mu0_pt_1b_minus", mu0_pt, weight, 30000, 0., 3000.);
     FillHist(param.Name+"_mu1_pt_1b_minus", mu1_pt, weight, 30000, 0., 3000.);
     FillHist(param.Name+"_mu0_eta_1b_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
     FillHist(param.Name+"_mu1_eta_1b_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
-
-    if(jets.size() == 0) return;
-    FillHist(param.Name+"_mll_1b1j_minus", ll.M(), weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu0_pt_1b1j_minus", mu0_pt, weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu1_pt_1b1j_minus", mu1_pt, weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu0_eta_1b1j_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
-    FillHist(param.Name+"_mu1_eta_1b1j_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
   }
 }
 
 /*
-void SSlepton::Ratio(Event ev, AnalyzerParameter param, double weight,std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets){
+void SSlepton::Ratio(Event ev, AnalyzerParameter param, double weight,std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
   Particle METv = ev.GetMETVector();
   double MET = METv.Pt();
@@ -374,8 +363,8 @@ void SSlepton::Ratio(Event ev, AnalyzerParameter param, double weight,std::vecto
 
   int Nbjet=0;
 
-  for(unsigned int ij = 0 ; ij < jets.size(); ij++){
-    if(IsBTagged(jets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
+  for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
+    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
   }
 
   FillHist(param.Name+"_mll_ratio", ll.M(), weight, 30000, 0., 3000.);
@@ -390,7 +379,7 @@ void SSlepton::Ratio(Event ev, AnalyzerParameter param, double weight,std::vecto
   else{
     FillHist(param.Name+"_mll_1b_raio", ll.M(), weight, 30000, 0., 3000.);
 
-    if(jets.size() == 0) return;
+    if(alljets.size() == 0) return;
 
     FillHist(param.Name+"_mll_1b1j_ratio", ll.M(), weight, 30000, 0., 3000.);
   }
