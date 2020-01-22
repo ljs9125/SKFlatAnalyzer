@@ -14,5 +14,7 @@
 #pragma link C++ class JetTagging+;
 
 
+#pragma link C++ class SSlepton+;
+#pragma link C++ class NonIsoSec+;
 
 #endif
