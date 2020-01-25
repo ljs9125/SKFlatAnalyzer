@@ -163,8 +163,7 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   vector<Electron> eles = SelectElectrons(this_AllElectrons, param.Electron_Veto_ID, 35., 2.5);
 
   vector<Jet> alljets = SelectJets(this_AllJets, param.Jet_ID, 30., 2.4);
-  vector<Jet> jets = JetsVetoLeptonInside(alljets, eles, muon);
-
+  
   //=======================
   //==== Sort in pt-order
   //=======================
@@ -173,7 +172,7 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   std::sort(muons.begin(), muons.end(), PtComparing);
   std::sort(eles.begin(), eles.end(), PtComparing);
   //==== 2) alljets : similar, but also when applying new JEC, ordering is changes. This is important if you use leading jets
-  std::sort(alljets.begin(), jets.end(), PtComparing);
+  std::sort(alljets.begin(), alljets.end(), PtComparing);
 
  
   //=========================
@@ -241,6 +240,8 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
 
 void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
+  TString dir = "plus";
+
   Particle METv = ev.GetMETVector();
   double MET = METv.Pt();
 
@@ -249,6 +250,8 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
   double mu0_pt, mu1_pt;
   mu0_pt = muons.at(0).Pt();
   mu1_pt = muons.at(1).Pt();
+
+  vector<Jet> jets = JetsVetoLeptonInside(alljets, eles, muons);
 
   int Nbjet=0;
 
@@ -258,45 +261,72 @@ void SSlepton::Charge_Plus(Event ev, AnalyzerParameter param, double weight,std:
   
   if (muons.at(0).Charge() <  0)  return;
 
-  FillHist(param.Name+"_mll_plus", ll.M(), weight, 3000, 0., 3000.);
-  FillHist(param.Name+"_mu0_pt_plus", mu0_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"_mu1_pt_plus", mu1_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"_mu0_eta_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
-  FillHist(param.Name+"_mu1_eta_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mll", ll.M(), weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_pt", mu0_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu1_pt", mu1_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_eta", muons.at(0).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mu1_eta", muons.at(1).Eta(), weight, 60, -3., 3.);
 
   if (MET < 40.) return;
 
-  //Reconstruct W boson using transverse mass(2 regions:mll less than 40GeV, larger than 40GeV)
-
-  FillHist(param.Name+"_Njet_plus", jets.size(), weight, 10, 0., 10.);
-  FillHist(param.Name+"_Nbjet_plus", Nbjet, weight, 10, 0.,10.);
+  JSFillHist(dir, param.Name+"_Njet", jets.size(), weight, 10, 0., 10.);
+  JSFillHist(dir, param.Name+"_Nbjet", Nbjet, weight, 10, 0.,10.);
    
-  FillHist(param.Name+"_mll_MET40_plus", ll.M(), weight, 3000, 0., 3000.);
-  FillHist(param.Name+"_mu0_pt_MET40_plus", mu0_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"_mu1_pt_MET40_plus", mu1_pt, weight, 3000, 0., 3000.);
-  FillHist(param.Name+"_mu0_eta_MET40_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
-  FillHist(param.Name+"_mu1_eta_MET40_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mll_MET40", ll.M(), weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_pt_MET40", mu0_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu1_pt_MET40", mu1_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_eta_MET40", muons.at(0).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mu1_eta_MET40", muons.at(1).Eta(), weight, 60, -3., 3.);
  
   if (Nbjet == 0){
-    FillHist(param.Name+"_mll_b_veto_plus", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu0_pt_b_veto_plus", mu0_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu1_pt_b_veto_plus", mu1_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu0_eta_b_veto_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
-    FillHist(param.Name+"_mu1_eta_b_veto_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mll_b_veto", ll.M(), weight, 300, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_pt_b_veto", mu0_pt, weight, 300, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu1_pt_b_veto", mu1_pt, weight, 300, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_eta_b_veto", muons.at(0).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mu1_eta_b_veto", muons.at(1).Eta(), weight, 60, -3., 3.);
+    
+    if (ll.M() < 40.){
+      JSFillHist(dir, param.Name+"_mu0_pt_b_veto_gg", mu0_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_b_veto_gg", mu1_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_b_veto_gg", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_b_veto_gg", MT(muons.at(1), METv), weight, 50, 0., 500.);
+    }
+    else{
+      JSFillHist(dir, param.Name+"_mu0_pt_b_veto_W", mu0_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_b_veto_W", mu1_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_b_veto_W", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_b_veto_W", MT(muons.at(1), METv), weight, 50, 0., 500.);
+    }
   }
 
   else{
-    FillHist(param.Name+"_Njet_1b_plus", alljets.size(), weight, 10, 0., 10.);   
+    JSFillHist(dir, param.Name+"_Njet_1b", alljets.size(), weight, 10, 0., 10.);   
 
-    FillHist(param.Name+"_mll_1b_plus", ll.M(), weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu0_pt_1b_plus", mu0_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu1_pt_1b_plus", mu1_pt, weight, 3000, 0., 3000.);
-    FillHist(param.Name+"_mu0_eta_1b_plus", muons.at(0).Eta(), weight, 60, -3., 3.);
-    FillHist(param.Name+"_mu1_eta_1b_plus", muons.at(1).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mll_1b", ll.M(), weight, 3000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_pt_1b", mu0_pt, weight, 3000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu1_pt_1b", mu1_pt, weight, 3000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_eta_1b", muons.at(0).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mu1_eta_1b", muons.at(1).Eta(), weight, 60, -3., 3.);
+ 
+    if (ll.M() < 40.){
+      JSFillHist(dir, param.Name+"_mu0_pt_1b_gg", mu0_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_1b_gg", mu1_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_1b_gg", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_1b_gg", MT(muons.at(1), METv), weight, 50, 0., 500.);
+    }
+    else{
+      JSFillHist(dir, param.Name+"_mu0_pt_1b_W", mu0_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_1b_W", mu1_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_1b_W", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_1b_W", MT(muons.at(1), METv), weight, 50, 0., 500.);
+
+    }
   }
 }
 
 void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
+
+  TString dir = "minus";
 
   Particle METv = ev.GetMETVector();
   double MET = METv.Pt();
@@ -307,6 +337,8 @@ void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  s
   mu0_pt = muons.at(0).Pt();
   mu1_pt = muons.at(1).Pt();
 
+  vector<Jet> jets = JetsVetoLeptonInside(alljets, eles, muons);
+
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
     if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
@@ -314,38 +346,68 @@ void SSlepton::Charge_Minus(Event ev, AnalyzerParameter param, double weight,  s
 
   if (muons.at(0).Charge() > 0) return;
 
-  FillHist(param.Name+"_mll_minus", ll.M(), weight, 30000, 0., 3000.);
-  FillHist(param.Name+"_mu0_pt_minus", mu0_pt, weight, 30000, 0., 3000.);
-  FillHist(param.Name+"_mu1_pt_minus", mu1_pt, weight, 30000, 0., 3000.);
-  FillHist(param.Name+"_mu0_eta_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
-  FillHist(param.Name+"_mu1_eta_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mll", ll.M(), weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_pt", mu0_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu1_pt", mu1_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_eta", muons.at(0).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mu1_eta", muons.at(1).Eta(), weight, 60, -3., 3.);
 
   if (MET < 40.) return;
 
-  FillHist(param.Name+"_Njet_minus", jets.size(), weight, 10, 0., 10.);
-  FillHist(param.Name+"_Nbjet_minus", Nbjet, weight, 10, 0., 10.);  
+  //Reconstruct W boson using transverse mass(2 regions:mll less than 40GeV, larger than 40GeV)
 
-  FillHist(param.Name+"_mll_MET40_minus", ll.M(), weight, 30000, 0., 3000.);
-  FillHist(param.Name+"_mu0_pt_MET40_minus", mu0_pt, weight, 30000, 0., 3000.);
-  FillHist(param.Name+"_mu1_pt_MET40_minus", mu1_pt, weight, 30000, 0., 3000.);
-  FillHist(param.Name+"_mu0_eta_MET40_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
-  FillHist(param.Name+"_mu1_eta_MET40_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
-
+  JSFillHist(dir, param.Name+"_Njet", jets.size(), weight, 10, 0., 10.);
+  JSFillHist(dir, param.Name+"_Nbjet", Nbjet, weight, 10, 0.,10.);
+   
+  JSFillHist(dir, param.Name+"_mll_MET40", ll.M(), weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_pt_MET40", mu0_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu1_pt_MET40", mu1_pt, weight, 300, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mu0_eta_MET40", muons.at(0).Eta(), weight, 60, -3., 3.);
+  JSFillHist(dir, param.Name+"_mu1_eta_MET40", muons.at(1).Eta(), weight, 60, -3., 3.);
+ 
   if (Nbjet == 0){
-    FillHist(param.Name+"_mll_b_veto_minus", ll.M(), weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu0_pt_b_veto_minus", mu0_pt, weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu1_pt_b_veto_minus", mu1_pt, weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu0_eta_b_veto_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
-    FillHist(param.Name+"_mu1_eta_b_veto_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mll_b_veto", ll.M(), weight, 300, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_pt_b_veto", mu0_pt, weight, 300, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu1_pt_b_veto", mu1_pt, weight, 300, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_eta_b_veto", muons.at(0).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mu1_eta_b_veto", muons.at(1).Eta(), weight, 60, -3., 3.);
+    
+    if (ll.M() < 40.){
+      JSFillHist(dir, param.Name+"_mu0_pt_b_veto_gg", mu0_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_b_veto_gg", mu1_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_b_veto_gg", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_b_veto_gg", MT(muons.at(1), METv), weight, 50, 0., 500.);
+    }
+    else{
+      JSFillHist(dir, param.Name+"_mu0_pt_b_veto_W", mu0_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_b_veto_W", mu1_pt, weight, 300, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_b_veto_W", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_b_veto_W", MT(muons.at(1), METv), weight, 50, 0., 500.);
+    }
   }
-  else{
-    FillHist(param.Name+"_Njet_1b_minus", alljets.size(), weight, 10, 0., 10.);
 
-    FillHist(param.Name+"_mll_1b_minus", ll.M(), weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu0_pt_1b_minus", mu0_pt, weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu1_pt_1b_minus", mu1_pt, weight, 30000, 0., 3000.);
-    FillHist(param.Name+"_mu0_eta_1b_minus", muons.at(0).Eta(), weight, 60, -3., 3.);
-    FillHist(param.Name+"_mu1_eta_1b_minus", muons.at(1).Eta(), weight, 60, -3., 3.);
+  else{
+    JSFillHist(dir, param.Name+"_Njet_1b", alljets.size(), weight, 10, 0., 10.);   
+
+    JSFillHist(dir, param.Name+"_mll_1b", ll.M(), weight, 3000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_pt_1b", mu0_pt, weight, 3000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu1_pt_1b", mu1_pt, weight, 3000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mu0_eta_1b", muons.at(0).Eta(), weight, 60, -3., 3.);
+    JSFillHist(dir, param.Name+"_mu1_eta_1b", muons.at(1).Eta(), weight, 60, -3., 3.);
+ 
+    if (ll.M() < 40.){
+      JSFillHist(dir, param.Name+"_mu0_pt_1b_gg", mu0_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_1b_gg", mu1_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_1b_gg", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_1b_gg", MT(muons.at(1), METv), weight, 50, 0., 500.);
+    }
+    else{
+      JSFillHist(dir, param.Name+"_mu0_pt_1b_W", mu0_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mu1_pt_1b_W", mu1_pt, weight, 3000, 0., 3000.);
+      JSFillHist(dir, param.Name+"_mt1_1b_W", MT(muons.at(0), METv), weight, 50, 0., 500.);
+      JSFillHist(dir, param.Name+"_mt2_1b_W", MT(muons.at(1), METv), weight, 50, 0., 500.);
+
+    }
   }
 }
 
@@ -367,21 +429,21 @@ void SSlepton::Ratio(Event ev, AnalyzerParameter param, double weight,std::vecto
     if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium,true,0)) Nbjet++; // method for getting btag with SF applied to MC
   }
 
-  FillHist(param.Name+"_mll_ratio", ll.M(), weight, 30000, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mll_ratio", ll.M(), weight, 30000, 0., 3000.);
 
   if (MET < 40.) return;
 
-  FillHist(param.Name+"_mll_MET40_ratio", ll.M(), weight, 30000, 0., 3000.);
+  JSFillHist(dir, param.Name+"_mll_MET40_ratio", ll.M(), weight, 30000, 0., 3000.);
 
   if (Nbjet == 0){
-    FillHist(param.Name+"_mll_b_veto_ratio", ll.M(), weight, 30000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mll_b_veto_ratio", ll.M(), weight, 30000, 0., 3000.);
   }
   else{
-    FillHist(param.Name+"_mll_1b_raio", ll.M(), weight, 30000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mll_1b_raio", ll.M(), weight, 30000, 0., 3000.);
 
     if(alljets.size() == 0) return;
 
-    FillHist(param.Name+"_mll_1b1j_ratio", ll.M(), weight, 30000, 0., 3000.);
+    JSFillHist(dir, param.Name+"_mll_1b1j_ratio", ll.M(), weight, 30000, 0., 3000.);
   }
 }
 */
