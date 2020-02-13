@@ -148,7 +148,7 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   //==== dimuon
   if(muons.size() != 2) return;
 
-  //==== 3rd lepton veto(only dimuon left)
+  //==== 3rd lepton veto(only dimuon)
   if(eles.size() != 0) return;
   if(muons.size() != muons_veto.size()) return;
 
@@ -197,15 +197,17 @@ void SSlepton::executeEventFromParameter(AnalyzerParameter param){
   Iso_Minus(ev, param, weight, muons, eles, alljets);
   NIso_Plus(ev, param, weight, muons, eles, alljets);
   NIso_Minus(ev, param, weight, muons, eles, alljets);
+  NNIso_Plus(ev, param, weight, muons, eles, alljets);
+  NNIso_Minus(ev, param, weight, muons, eles, alljets);
 
-  //======TODO both non-isolated muon
+  //======TODO deltaR btw leading jet and muons
   //======TODO sort muon according to PF isolation
   //======FIXME transverse mass distribution has some problems
 }
 
 void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
-  TString iso = "Iso";
+  TString iso = "II";
   TString sign = "plus";
   TString dir = param.Name + "/" + iso + "/" + sign;
 
@@ -231,6 +233,9 @@ void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::v
   if(!(muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() < 0.15)) return;
   //==== reject collinear div
   if (ll.M() < 10) return;
+
+  Plot_All(dir+"/Nocut_MET", muons, ll, METv, jets, alljets, bjet, Nbjet, weight);  
+
   //==== reduce QCD bkgd.
   if (MET < 40.) return;
 
@@ -240,7 +245,7 @@ void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::v
 
 void SSlepton::Iso_Minus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
-  TString iso = "Iso";
+  TString iso = "II";
   TString sign = "minus";
   TString dir = param.Name + "/" + iso + "/" + sign;
 
@@ -266,6 +271,9 @@ void SSlepton::Iso_Minus(Event ev, AnalyzerParameter param, double weight, std::
   if(!(muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() < 0.15)) return;
   //==== reject collinear div
   if (ll.M() < 10) return;
+ 
+  Plot_All(dir+"/Nocut_MET", muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
   //==== reduce QCD bkgd.
   if (MET < 40.) return;
   
@@ -275,7 +283,7 @@ void SSlepton::Iso_Minus(Event ev, AnalyzerParameter param, double weight, std::
 
 void SSlepton::NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
-  TString iso = "NIso";
+  TString iso = "NI";
   TString sign = "plus";
   TString dir = param.Name + "/" + iso + "/" + sign;
 
@@ -298,18 +306,18 @@ void SSlepton::NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::
   //==== mu+mu+ 
   if (muons.at(0).Charge() < 0)  return;
   //==== One isolated, the other does not
-  if(!((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15))) return;
+  if (!((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15))) return;
   //==== reject collinear div
   if (ll.M() < 10) return;
+  Plot_All(dir+"/Nocut_MET", muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
   //==== reduce QCD bkgd.
   if (MET < 40.) return;
-
   Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
 }
 
 void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
 
-  TString iso = "NIso";
+  TString iso = "NI";
   TString sign = "minus";
   TString dir = param.Name + "/" + iso + "/" + sign;
 
@@ -332,15 +340,90 @@ void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std:
   //==== mu-mu- 
   if (muons.at(0).Charge() > 0)  return;
   //==== One isolated, the other does not
-  if(!((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15))) return;
+  if (!((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15))) return;
   //==== reject collinear div
   if (ll.M() < 10) return;
+  Plot_All(dir+"/Nocut_MET", muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
   //==== reduce QCD bkgd.
   if (MET < 40.) return;
- 
   Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
 
 }
+
+void SSlepton::NNIso_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
+
+  TString iso = "NN";
+  TString sign = "plus";
+  TString dir = param.Name + "/" + iso + "/" + sign;
+
+  Particle METv = ev.GetMETVector();
+  double MET = METv.Pt();
+
+  Particle ll  = muons.at(0) + muons.at(1);
+
+  vector<Jet> jets = JetsVetoLeptonInside(alljets, eles, muons);
+  vector<Jet> bjet;
+
+  int Nbjet=0;
+  for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
+    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
+      Nbjet++; // method for getting btag with SF applied to MC
+      bjet.push_back(alljets.at(ij));
+    }
+  }
+ 
+  //==== mu+mu+ 
+  if (muons.at(0).Charge() < 0)  return;
+  //==== Both isolated
+  if(!(muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() > 0.3)) return;
+  //==== reject collinear div
+  if (ll.M() < 10) return;
+  Plot_All(dir+"/Nocut_MET", muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  //==== reduce QCD bkgd.
+  if (MET < 40.) return;
+
+  Plot_All(dir , muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+}
+
+void SSlepton::NNIso_Minus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
+
+  TString iso = "NN";
+  TString sign = "minus";
+  TString dir = param.Name + "/" + iso + "/" + sign;
+
+  Particle METv = ev.GetMETVector();
+  double MET = METv.Pt();
+
+  Particle ll  = muons.at(0) + muons.at(1);
+
+  vector<Jet> jets = JetsVetoLeptonInside(alljets, eles, muons);
+  vector<Jet> bjet;
+
+  int Nbjet=0;
+  for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
+    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
+      Nbjet++; // method for getting btag with SF applied to MC
+      bjet.push_back(alljets.at(ij));
+    }
+  }
+ 
+  //==== mu-mu- 
+  if (muons.at(0).Charge() > 0)  return;
+  //==== Both isolated
+  if(!(muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() > 0.3)) return;
+  //==== reject collinear div
+  if (ll.M() < 10) return;
+  Plot_All(dir+"/Nocut_MET", muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  //==== reduce QCD bkgd.
+  if (MET < 40.) return;
+  
+  Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+}
+
 
 void SSlepton::FillMuonPlots(std::vector<Muon> muons, TString this_dir, TString this_region, double weight){
   

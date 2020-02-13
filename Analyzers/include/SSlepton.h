@@ -31,6 +31,9 @@ public:
   void Iso_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets); 
   void NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets);
   void NIso_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets); 
+  void NNIso_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets);
+  void NNIso_Minus(Event ev, AnalyzerParameter param, double weight,  std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> jets); 
+
 
   void Plot_All(TString dir, std::vector<Muon> muons, Particle ll, Particle METv, std::vector<Jet> jets, std::vector<Jet> alljets, std::vector<Jet> bjet, int Nbjet, double weight);
   void FillMuonPlots(vector<Muon> muons, TString this_dir, TString this_region , double weight);
