@@ -8,6 +8,7 @@
 
 #include "TFile.h"
 #include "TString.h"
+#include "TRegexp.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TGraph.h"
@@ -22,6 +23,8 @@
 
 #include "TDirectoryHelper.h"
 #include "GenFinderForDY.h"
+#include "BTagCalibrationStandalone.h"
+#include "TRandom3.h"
 
 class MCCorrection{
 
@@ -39,9 +42,18 @@ public:
   int DataYear;
   void SetDataYear(int i);
 
+  bool IsDATA;
+  void SetIsDATA(bool b);
+
+  int run,lumi,event;
+  void SetEventInfo(int r, int l, int e);
+
+  bool IsFastSim;
+  void SetIsFastSim(bool b);
+
   bool IgnoreNoHist;
 
-  double MuonReco_SF(TString key, double eta, double pt, int sys=0);
+  double MuonReco_SF(TString key, double eta, double p, int sys=0);
   double MuonID_SF(TString ID, double eta, double pt, int sys=0);
   double MuonISO_SF(TString ID, double eta, double pt, int sys=0);
   double MuonTrigger_Eff(TString ID, TString trig, int DataOrMC, double eta, double pt, int sys=0);
@@ -69,7 +81,35 @@ public:
 
   TH2D *hist_DYPtReweight_2D;
   GenFinderForDY *genFinderDY;
-  double GetOfficialDYReweight(const vector<Gen>& gens);
+  double GetOfficialDYReweight(const vector<Gen>& gens, int sys=0);
+
+  //==== b tagging
+
+  double GetJetTaggingCutValue(JetTagging::Tagger tagger, JetTagging::WP wp);
+
+  std::vector<JetTagging::Parameters> jetTaggingPars;
+  void SetJetTaggingParameters(std::vector<JetTagging::Parameters> v);
+
+  std::map< std::string, BTagCalibrationReader* > map_BTagCalibrationReader;
+  void SetupJetTagging();
+
+  TH2D *hist_JetTagEff_B;
+  TH2D *hist_JetTagEff_C;
+  TH2D *hist_JetTagEff_Light;
+
+  double GetMCJetTagEff(JetTagging::Tagger tagger, JetTagging::WP wp, int JetFlavor, double JetPt, double JetEta);
+  double GetJetTaggingSF(JetTagging::Parameters jtp, int JetFlavor, double JetPt, double JetEta, double Jetdiscr, string Syst="central");
+
+  //==== https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods
+
+  //==== 1a) Event reweighting using scale factors and MC b-tagging efficiencies
+  double GetBTaggingReweight_1a(const vector<Jet>& jets, JetTagging::Parameters jtp, string Syst="central");
+  //==== 1d) Event reweighting using discriminator-dependent scale factors
+  double GetBTaggingReweight_1d(const vector<Jet>& jets, JetTagging::Parameters jtp, string Syst="central");
+
+  //==== 2a) Jet-by-jet updating of the b-tagging status
+  bool IsBTagged_2a(JetTagging::Parameters jtp, const Jet& jet, string Syst="central");
+
 };
 
 #endif
