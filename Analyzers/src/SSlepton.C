@@ -47,16 +47,13 @@ void SSlepton::initializeAnalyzer(){
   cout << "[SSlepton::initializeAnalyzer] IsoMuTriggerName = " << IsoMuTriggerName << endl;
   cout << "[SSlepton::initializeAnalyzer TriggerSafePtCut = " << TriggerSafePtCut << endl;
 
-  //==== Test btagging code
+  //==== B-Tagging
   //==== add taggers and WP that you want to use in analysis
-  std::vector<Jet::Tagger> vtaggers;
-  vtaggers.push_back(Jet::DeepCSV);
-
-  std::vector<Jet::WP> v_wps;
-  v_wps.push_back(Jet::Medium);
-
-  //=== list of taggers, WP, setup systematics, use period SFs
-  SetupBTagger(vtaggers,v_wps, true, true);
+  std::vector<JetTagging::Parameters> jtps;
+  //==== If you want to use 1a or 2a method,
+  jtps.push_back( JetTagging::Parameters(JetTagging::DeepCSV, JetTagging::Medium, JetTagging::incl, JetTagging::comb) );
+  //==== set
+  mcCorr->SetJetTaggingParameters(jtps);
 
 }
 
@@ -221,8 +218,11 @@ void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::v
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
-    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
-      Nbjet++; // method for getting btag with SF applied to MC
+
+    double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
+
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){ 
+      Nbjet++; 
       bjet.push_back(alljets.at(ij));
     }
   }
@@ -256,12 +256,15 @@ void SSlepton::Iso_Minus(Event ev, AnalyzerParameter param, double weight, std::
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
-    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
-      Nbjet++; // method for getting btag with SF applied to MC
+
+    double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
+
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
+      Nbjet++; 
       bjet.push_back(alljets.at(ij));
     }
   }
- 
+
   //==== mu-mu- 
   if (muons.at(0).Charge() > 0)  return;
   //==== reject collinear div
@@ -291,8 +294,11 @@ void SSlepton::NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
-    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
-      Nbjet++; // method for getting btag with SF applied to MC
+
+    double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
+
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
+      Nbjet++; 
       bjet.push_back(alljets.at(ij));
     }
   }
@@ -313,7 +319,7 @@ void SSlepton::NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::
     IsoMu.push_back(muons.at(0));
     IsoMu.push_back(muons.at(1));
   }
-  else(muons.at(0).RelIso > 0.3){
+  else if(muons.at(0).RelIso() > 0.3){
     IsoMu.push_back(muons.at(1));
     IsoMu.push_back(muons.at(0));  
   }
@@ -336,8 +342,11 @@ void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std:
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
-    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
-      Nbjet++; // method for getting btag with SF applied to MC
+
+    double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
+
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
+      Nbjet++; 
       bjet.push_back(alljets.at(ij));
     }
   }
@@ -359,7 +368,7 @@ void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std:
     IsoMu.push_back(muons.at(0));
     IsoMu.push_back(muons.at(1));
   }
-  else(muons.at(0).RelIso > 0.3){
+  else if(muons.at(0).RelIso() > 0.3){
     IsoMu.push_back(muons.at(1));
     IsoMu.push_back(muons.at(0));  
   }
@@ -382,15 +391,18 @@ void SSlepton::NNIso_Plus(Event ev, AnalyzerParameter param, double weight, std:
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
-    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
-      Nbjet++; // method for getting btag with SF applied to MC
+
+    double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
+
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
+      Nbjet++; 
       bjet.push_back(alljets.at(ij));
     }
-  }
+  }  
  
   //==== mu+mu+ 
   if (muons.at(0).Charge() < 0)  return;
- //==== reject collinear div
+  //==== reject collinear div
   if (ll.M() < 10) return;
   //==== reduce QCD bkgd.
   if (MET < 40.) return;
@@ -417,8 +429,11 @@ void SSlepton::NNIso_Minus(Event ev, AnalyzerParameter param, double weight, std
 
   int Nbjet=0;
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
-    if(IsBTagged(alljets.at(ij), Jet::DeepCSV, Jet::Medium, true, 0)){ 
-      Nbjet++; // method for getting btag with SF applied to MC
+
+    double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
+
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
+      Nbjet++; 
       bjet.push_back(alljets.at(ij));
     }
   }
