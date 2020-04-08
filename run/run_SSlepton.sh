@@ -17,13 +17,13 @@ python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i QCD_Pt-20to30_Mu
 python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i QCD_Pt-15to20_MuEnrichedPt5 -y 2016 -n 5 &
 
 #VV
-python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i WW_pythia -y 2016 -n 5 &
-python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i WZ_pythia -y 2016 -n 5 &
-python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i ZZ_pythia -y 2016 -n 5 &
+#python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i WW_pythia -y 2016 -n 5 &
+#python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i WZ_pythia -y 2016 -n 5 &
+#python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i ZZ_pythia -y 2016 -n 5 &
 
 #W,Z
 python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i WJets_MG -y 2016 -n 5 &
-python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i DYJets_MG -y 2016 -n 5 &
+python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i DYJets -y 2016 -n 5 &
 
 #Top
 python python/SKFlat.py -a SSlepton --skim SkimTree_NIsoMuon -i SingleTop_tW_antitop_NoFullyHad -y 2016 -n 5 &
