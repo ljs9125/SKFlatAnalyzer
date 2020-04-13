@@ -215,6 +215,9 @@ void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::v
   vector<Jet> bjet;
 
   int Nbjet=0;
+  int Nbjet_L=0;
+  int Nbjet_T=0;
+
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
 
     double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
@@ -222,6 +225,12 @@ void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::v
     if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){ 
       Nbjet++; 
       bjet.push_back(alljets.at(ij));
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Loose)){
+      Nbjet_L++;
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Tight)){
+      Nbjet_T++;
     }
   }
  
@@ -235,6 +244,26 @@ void SSlepton::Iso_Plus(Event ev, AnalyzerParameter param, double weight, std::v
   if(!(muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() < 0.15)) return;
  
   Plot_All(dir , muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
 
 }
 
@@ -253,15 +282,25 @@ void SSlepton::Iso_Minus(Event ev, AnalyzerParameter param, double weight, std::
   vector<Jet> bjet;
 
   int Nbjet=0;
+  int Nbjet_L=0;
+  int Nbjet_T=0;
+
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
 
     double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
 
     if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
-      Nbjet++; 
+      Nbjet++;
       bjet.push_back(alljets.at(ij));
     }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Loose)){
+      Nbjet_L++;
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Tight)){
+      Nbjet_T++;
+    }
   }
+
 
   //==== mu-mu- 
   if (muons.at(0).Charge() > 0)  return;
@@ -273,6 +312,26 @@ void SSlepton::Iso_Minus(Event ev, AnalyzerParameter param, double weight, std::
   if(!(muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() < 0.15)) return;
   
   Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
 
 }
 
@@ -291,26 +350,55 @@ void SSlepton::NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::
   vector<Jet> bjet;
 
   int Nbjet=0;
+  int Nbjet_L=0;
+  int Nbjet_T=0;
+
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
 
     double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
 
     if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
-      Nbjet++; 
+      Nbjet++;
       bjet.push_back(alljets.at(ij));
     }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Loose)){
+      Nbjet_L++;
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Tight)){
+      Nbjet_T++;
+    }
   }
- 
+
   //==== mu+mu+ 
   if (muons.at(0).Charge() < 0)  return;
   //==== reject collinear div
   if (ll.M() < 10) return;
   //==== reduce QCD bkgd.
   if (MET < 40.) return;
-  Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
   //==== One isolated, the other does not
   if (!((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15))) return;
- 
+
+  Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
+
   //sort muons due to its isolation 
   vector<Muon> IsoMu;
   if(muons.at(0).RelIso() < 0.15){
@@ -322,6 +410,28 @@ void SSlepton::NIso_Plus(Event ev, AnalyzerParameter param, double weight, std::
     IsoMu.push_back(muons.at(0));  
   }
   Plot_All(dir+"/SortMuByIso", IsoMu, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
+
+
 }
 
 void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
@@ -339,16 +449,25 @@ void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std:
   vector<Jet> bjet;
 
   int Nbjet=0;
+  int Nbjet_L=0;
+  int Nbjet_T=0;
+
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
 
     double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
 
     if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
-      Nbjet++; 
+      Nbjet++;
       bjet.push_back(alljets.at(ij));
     }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Loose)){
+      Nbjet_L++;
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Tight)){
+      Nbjet_T++;
+    }
   }
- 
+
   //==== mu-mu- 
   if (muons.at(0).Charge() > 0)  return;
  //==== reject collinear div
@@ -359,6 +478,27 @@ void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std:
   if (!((muons.at(0).RelIso() < 0.15 && muons.at(1).RelIso() > 0.3) || (muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() < 0.15))) return;
 
   Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
+
 
   //sort muons due to its isolation 
   vector<Muon> IsoMu;
@@ -371,6 +511,27 @@ void SSlepton::NIso_Minus(Event ev, AnalyzerParameter param, double weight, std:
     IsoMu.push_back(muons.at(0));  
   }
   Plot_All(dir+"/SortMuByIso", IsoMu, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+    if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
+
 }
 
 void SSlepton::NNIso_Plus(Event ev, AnalyzerParameter param, double weight, std::vector<Muon> muons, std::vector<Electron> eles, std::vector<Jet> alljets){
@@ -388,16 +549,25 @@ void SSlepton::NNIso_Plus(Event ev, AnalyzerParameter param, double weight, std:
   vector<Jet> bjet;
 
   int Nbjet=0;
+  int Nbjet_L=0;
+  int Nbjet_T=0;
+
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
 
     double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
 
     if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
-      Nbjet++; 
+      Nbjet++;
       bjet.push_back(alljets.at(ij));
     }
-  }  
- 
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Loose)){
+      Nbjet_L++;
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Tight)){
+      Nbjet_T++;
+    }
+  }
+
   //==== mu+mu+ 
   if (muons.at(0).Charge() < 0)  return;
   //==== reject collinear div
@@ -408,6 +578,27 @@ void SSlepton::NNIso_Plus(Event ev, AnalyzerParameter param, double weight, std:
   if(!(muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() > 0.3)) return;
  
   Plot_All(dir , muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
+
 
 }
 
@@ -426,16 +617,25 @@ void SSlepton::NNIso_Minus(Event ev, AnalyzerParameter param, double weight, std
   vector<Jet> bjet;
 
   int Nbjet=0;
+  int Nbjet_L=0;
+  int Nbjet_T=0;
+
   for(unsigned int ij = 0 ; ij < alljets.size(); ij++){
 
     double this_discr = alljets.at(ij).GetTaggerResult(JetTagging::DeepCSV);
 
     if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Medium)){
-      Nbjet++; 
+      Nbjet++;
       bjet.push_back(alljets.at(ij));
     }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Loose)){
+      Nbjet_L++;
+    }
+    if( this_discr > mcCorr->GetJetTaggingCutValue(JetTagging::DeepCSV, JetTagging::Tight)){
+      Nbjet_T++;
+    }
   }
- 
+
   //==== mu-mu- 
   if (muons.at(0).Charge() > 0)  return;
   //==== reject collinear div
@@ -446,6 +646,27 @@ void SSlepton::NNIso_Minus(Event ev, AnalyzerParameter param, double weight, std
   if(!(muons.at(0).RelIso() > 0.3 && muons.at(1).RelIso() > 0.3)) return;
   
   Plot_All(dir, muons, ll, METv, jets, alljets, bjet, Nbjet, weight);
+
+  if (Nbjet_L == 0){
+    dir = dir + "/Loose_b_veto";
+    FillHist(dir+"/mll_Loose_b_veto", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Loose_b_veto", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Loose_b_veto", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Loose_b_veto", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Loose_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+
+  }
+  if (Nbjet_T > 0){
+    dir = dir + "/Tight_1b";
+    FillHist(dir+"/mll_Tight__1b", ll.M(), weight, 3000, 0., 3000.);
+    FillHist(dir+"/mt1_Tight_1b", MT(muons.at(0), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/mt2_Tight_1b", MT(muons.at(1), METv), weight, 500, 0., 500.);
+    FillHist(dir+"/dphi1_Tight_1b", muons.at(0).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/dphi2_Tight_1b", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
+    FillHist(dir+"/deltaR_b_mu1_Tight_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+    FillHist(dir+"/deltaR_b_mu2_Tight_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
+  }
+
 
 }
 
@@ -495,7 +716,6 @@ void SSlepton::FillJetsPlots(std::vector<Jet> jets, std::vector<Jet> bjet, TStri
 }
 
 void SSlepton::Plot_All(TString dir, std::vector<Muon> muons, Particle ll, Particle METv, std::vector<Jet> jets, std::vector<Jet> alljets, std::vector<Jet> bjet, int Nbjet, double weight){
-  //==== W+jets dominant
   if (Nbjet == 0){
     dir = dir + "/b_veto";
     FillHist(dir+"/Njet_b_veto", jets.size(), weight, 10, 0., 10.);
@@ -511,22 +731,7 @@ void SSlepton::Plot_All(TString dir, std::vector<Muon> muons, Particle ll, Parti
     FillHist(dir+"/dphi2_b_veto", muons.at(1).DeltaPhi(METv), weight, 100, -5., 5.);
     FillJetsPlots(jets, bjet, dir, "b_veto", weight);
 
-  /*
-    if (ll.M() < 40.){
-      FillMuonPlots(muons, dir, "b_veto_ttbar", weight);
-      FillHist(dir+"/Njet_b_veto_ttbar", jets.size(), weight, 10, 0., 10.);
-      FillHist(dir+"/mt1_b_veto_ttbar", MT(muons.at(0), METv), weight, 500, 0., 500.);
-      FillHist(dir+"/mt2_b_veto_ttbar", MT(muons.at(1), METv), weight, 500, 0., 500.);
-    }
-    else{
-      FillMuonPlots(muons, dir, "b_veto_W", weight);
-      FillHist(dir+"/Njet_b_veto_W", jets.size(), weight, 10, 0., 10.);
-      FillHist(dir+"/mt1_b_veto_W", MT(muons.at(0), METv), weight, 500, 0., 500.);
-      FillHist(dir+"/mt2_b_veto_W", MT(muons.at(1), METv), weight, 500, 0., 500.);
-    }
-  */
   }
-  //==== ttbar
   else{
     dir = dir + "/1b";
     FillHist(dir+"/Njet_1b", jets.size(), weight, 10, 0., 10.);   
@@ -543,19 +748,5 @@ void SSlepton::Plot_All(TString dir, std::vector<Muon> muons, Particle ll, Parti
     FillJetsPlots(jets, bjet, dir, "1b", weight);
     FillHist(dir+"/deltaR_b_mu1_1b", muons.at(0).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
     FillHist(dir+"/deltaR_b_mu2_1b", muons.at(1).DeltaR(bjet.at(0)), weight, 1000, 0., 10.);
-/*    if (jets.size() > 2){
-      dir = dir + "_ttbar";
-      FillMuonPlots(muons, dir, "1b_ttbar", weight);
-      FillHist(dir+"/mll_1b_ttbar", ll.M(), weight, 3000, 0., 3000.);
-      FillHist(dir+"/mt1_1b_ttbar", MT(muons.at(0), METv), weight, 500, 0., 500.);
-      FillHist(dir+"/mt2_1b_ttbar", MT(muons.at(1), METv), weight, 500, 0., 500.);
-    }
-    else{
-      dir = dir + "_W";
-      FillMuonPlots(muons, dir, "1b_W", weight);
-      FillHist(dir+"/mll_1b_W", ll.M(), weight, 3000, 0., 3000.);   
-      FillHist(dir+"/mt1_1b_W", MT(muons.at(0), METv), weight, 500, 0., 500.);
-      FillHist(dir+"/mt2_1b_W", MT(muons.at(1), METv), weight, 500, 0., 500.);
-    }*/
   }
 }
